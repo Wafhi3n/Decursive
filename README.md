@@ -1,3 +1,3 @@
-# Addon Name
+# Decursive
 
-This is the repository for <Addon Name>. Modified for Ascension.gg. 
+This is the repository for Decursive. Modified for Ascension.gg. 
