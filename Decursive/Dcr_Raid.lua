@@ -191,6 +191,7 @@ DC.ClassNumToLName = {
     [18]        = LC[DC.CLASS_WARLOCK],
     [19]        = LC[DC.CLASS_WARRIOR],
     [20]        = LC[DC.CLASS_DEATHKNIGHT],
+    [21]        = LC[DC.CLASS_HERO],
 }
 
 DC.ClassLNameToNum = D:tReverse(DC.ClassNumToLName);
@@ -206,6 +207,7 @@ DC.ClassNumToUName = {
     [18]        = DC.CLASS_WARLOCK,
     [19]        = DC.CLASS_WARRIOR,
     [20]        = DC.CLASS_DEATHKNIGHT,
+    [21]        = DC.CLASS_HERO,
 }
 
 DC.ClassUNameToNum = D:tReverse(DC.ClassNumToUName);

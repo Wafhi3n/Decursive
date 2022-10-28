@@ -127,16 +127,9 @@ DC.FailedSound = "Interface\\AddOns\\Decursive\\Sounds\\FailedSpell.wav";
 DC.IconON = "Interface\\AddOns\\Decursive\\iconON.tga";
 DC.IconOFF = "Interface\\AddOns\\Decursive\\iconOFF.tga";
 
-DC.CLASS_DRUID       = 'DRUID';
-DC.CLASS_HUNTER      = 'HUNTER';
-DC.CLASS_MAGE        = 'MAGE';
-DC.CLASS_PALADIN     = 'PALADIN';
-DC.CLASS_PRIEST      = 'PRIEST';
-DC.CLASS_ROGUE       = 'ROGUE';
-DC.CLASS_SHAMAN      = 'SHAMAN';
-DC.CLASS_WARLOCK     = 'WARLOCK';
-DC.CLASS_WARRIOR     = 'WARRIOR';
-DC.CLASS_DEATHKNIGHT = 'DEATHKNIGHT';
+for class in pairs(RAID_CLASS_COLORS) do
+    DC["CLASS_"..class] = class
+end
 
 DC.MyClass = "NOCLASS";
 DC.MyName = "NONAME";
@@ -528,16 +521,6 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
             Pet = false,
         };
     end
-
-    --[=[ this exception is no longer required since Consume magic no longer exists: http://www.wowwiki.com/Consume_Magic
-    -- Thanks to Chinese localization team of WoW we have to make anOTHER exception.... ://///
-    -- They found the way to call two different spells the same (Devour Magic and Consume Magic... (both are called "&#21534;&#22124;&#39764;&#27861;" )
-    if ((select(2, UnitClass("player"))) == "PRIEST") then
-        DC.SpellsToUse[DS["PET_FEL_CAST"]] = nil; -- so we remove PET_FEL_CAST.
-    end
-    --]=]
-
-    -- // }}}
 
 
     -- New Comm Part used for version checking

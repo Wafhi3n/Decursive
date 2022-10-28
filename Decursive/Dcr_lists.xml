@@ -86,7 +86,7 @@
     <!--  Dcr_ListFrameTemplate {{{ -->
     <Frame name="Dcr_ListFrameTemplate" frameStrata="LOW" toplevel="true" enableMouse="true" EnableMouseWheel="true" movable="true" hidden="true" virtual="true" parent="UIParent">
         <Size>
-            <AbsDimension x="170" y="210" />
+            <AbsDimension x="170" y="230" />
         </Size>
 
         <Anchors>
@@ -416,7 +416,7 @@
     <!-- DecursivePopulateListFrame {{{ -->
     <Frame name="DecursivePopulateListFrame" frameStrata="LOW" toplevel="true" enableMouse="true" movable="true" hidden="true" parent="UIParent">
         <Size>
-            <AbsDimension x="168" y="265" />
+            <AbsDimension x="168" y="285" />
         </Size>
 
         <Anchors>
@@ -874,6 +874,28 @@
                     <OnLoad>
                         if DecursiveInstallCorrupted then return end
                         self.ClassType = DcrC.CLASS_DEATHKNIGHT;
+                        self:SetText(Dcr:ColorText(Dcr.LC[self.ClassType], "FF"..Dcr:GetClassHexColor(self.ClassType)));
+                    </OnLoad>
+                </Scripts>
+            </Button>
+            <Button name="$parentHero" inherits="GameMenuButtonTemplate" text="Hero">
+                <Size>
+                    <AbsDimension x="80" y="20" />
+                </Size>
+                <Anchors>
+                    <Anchor point="TOP" relativePoint="BOTTOM" relativeTo="$parentPaladin">
+                        <Offset>
+                            <AbsDimension x="0" y="0" />
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        Dcr:PopulateButtonPress(self);
+                    </OnClick>
+                    <OnLoad>
+                        if DecursiveInstallCorrupted then return end
+                        self.ClassType = DcrC.CLASS_HERO;
                         self:SetText(Dcr:ColorText(Dcr.LC[self.ClassType], "FF"..Dcr:GetClassHexColor(self.ClassType)));
                     </OnLoad>
                 </Scripts>

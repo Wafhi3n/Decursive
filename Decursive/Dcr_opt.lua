@@ -376,7 +376,29 @@ function D:GetDefaultsSettings()
                     [DS["DELUSIONOFJINDO"]]= true,
                 },
                 ["DEATHKNIGHT"] = {
-                }
+                },
+                ["HERO"] = {},
+                ["BARBARIAN"] = {},
+                ["WITCHDOCTOR"] = {},
+                ["DEMONHUNTER"] = {},
+                ["WITCHHUNTER"] = {},
+                ["STORMBRINGER"] = {},
+                ["FLESHWARDEN"] = {},
+                ["GUARDIAN"] = {},
+                ["MONK"] = {},
+                ["SONOFARUGAL"] = {},
+                ["RANGER"] = {},
+                ["PROPHET"] = {},
+                ["PYROMANCER"] = {},
+                ["CULTIST"] = {},
+                ["NECROMANCER"] = {},
+                ["SUNCLERIC"] = {},
+                ["TINKER"] = {},
+                ["REAPER"] = {},
+                ["WILDWALKER"] = {},
+                ["STARCALLER"] = {},
+                ["SPIRITMAGE"] = {},
+                ["CHRONOMANCER"] = {},
             }
             -- }}}
         }
