@@ -382,7 +382,7 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
         },
         -- Paladins
         [DS["SPELL_PURIFY"]]                = {
-            Types = {DC.DISEASE, DC.POISON},
+            Types = {DC.MAGIC, DC.DISEASE, DC.POISON},
             IsBest = 1,
             Pet = false,
         },
