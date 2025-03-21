@@ -79,6 +79,8 @@ function D:GetDefaultsSettings()
                 [DC.POISON]     = 4,
                 [DC.DISEASE]            = 5,
                 [DC.CHARMED]            = 6,
+                [DC.BLEED]            = 7,
+
             },
         },
 
@@ -1599,6 +1601,17 @@ local function GetOptions()
                         disabled = function() return not D.Status.CuringSpells[DC.CHARMED] end,
                         order = 146
                     },
+                    CureBleed = {
+                        type = "toggle",
+                        name = "  "..L["BLEED"],
+                        desc = L["OPT_BLEEDCHECK_DESC"],
+                        get = function() return D:GetCureCheckBoxStatus(DC.BLEED) end,
+                        set = function()
+                            D:SetCureOrder (DC.BLEED);
+                        end,
+                        disabled = function() return not D.Status.CuringSpells[DC.BLEED] end,
+                        order = 147
+                    },
                 }
             }, -- }}}
 
@@ -1776,6 +1789,8 @@ local TypesToUName = {
     [DC.POISON]         = "POISON",
     [DC.DISEASE]        = "DISEASE",
     [DC.CHARMED]        = "CHARM",
+    [DC.BLEED]          = "BLEED",
+
 }
 
 local CureCheckBoxes = false;
@@ -1803,6 +1818,8 @@ function D:CheckCureOrder ()
         [DC.POISON]         = 4,
         [DC.DISEASE]        = 5,
         [DC.CHARMED]        = 6,
+        [DC.BLEED]          = 7,
+
     };
     local AuthorizedValues = {
         [false] = true; -- LOL Yes, it's TRUE tnat FALSE is an authorized value xD
@@ -1819,6 +1836,8 @@ function D:CheckCureOrder ()
         [-15]   = DC.DISEASE,
         [6]     = DC.CHARMED,
         [-16]   = DC.CHARMED,
+        [7]     = DC.BLEED,
+        [-17]   = DC.BLEED,
     };
     local GivenValues = {};
 
@@ -1861,6 +1880,7 @@ function D:SetCureOrder (ToChange)
             [DC.POISON]         = D.options.args.CureOptions.args.CurePoison,
             [DC.DISEASE]        = D.options.args.CureOptions.args.CureDisease,
             [DC.CHARMED]        = D.options.args.CureOptions.args.CureCharmed,
+            [DC.BLEED]          = D.options.args.CureOptions.args.CureBleed,
         }
     end
 

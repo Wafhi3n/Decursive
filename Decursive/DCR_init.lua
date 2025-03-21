@@ -142,6 +142,7 @@ DC.POISON       = 8;
 DC.DISEASE      = 16;
 DC.CHARMED      = 32;
 DC.NOTYPE       = 64;
+DC.BLEED        = 128;
 
 
 DC.NORMAL                   = 8;
@@ -314,6 +315,7 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
         [DC.POISON]     = "Poison";
         [DC.DISEASE]    = "Disease";
         [DC.CHARMED]    = "Charm";
+        [DC.BLEED]      = "Bleeding";
     }
 
     DC.NameToTypes = D:tReverse(DC.TypeNames);
@@ -349,6 +351,19 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
             IsBest = 0,
             Pet = false,
         }, --]]
+        -- TEST
+       -- [DS["SPELL_stoneform"]]          = {
+        --    Types = {DC.BLEED},
+        --    IsBest = 1,
+        --    Pet = false,
+        --},
+        
+        -- RANGER
+        [DS["SPELL_SURVIVAL_POTION"]]          = {
+            Types = {DC.MAGIC,DC.POISON,DC.BLEED},
+            IsBest = 1,
+            Pet = false,
+        },
         -- Suncleric
         [DS["SPELL_SHATER_MAGIC"]]          = {
             Types = {DC.MAGIC},
@@ -1025,6 +1040,7 @@ function D:Configure() --{{{
     CuringSpells[DC.POISON]     = false;
     CuringSpells[DC.DISEASE]    = false;
     CuringSpells[DC.CHARMED]    = false;
+    CuringSpells[DC.BLEED]      = false;
 
     local Spell, spellName, Type, _;
     local GetSpellInfo = _G.GetSpellInfo;
@@ -1107,7 +1123,8 @@ function D:GetSpellsTranslations(FromDIAG)
 
 
     Spells = {
---      ["SPELL_SURVIVAL_KIT"]          = {     524968,                                  }, -- ranger
+        --["SPELL_stoneform"]             = {     20594 ,                                  }, -- ranger
+        ["SPELL_SURVIVAL_POTION"]       = {     802839 ,                                 }, -- ranger
         ["SPELL_BLIGHTBREAKER"]         = {     804050,                                  }, -- suncleric
         ["SPELL_SANCTIFY"]              = {     524968,                                  }, -- suncleric
         ["SPELL_SHATER_MAGIC"]          = {     804067,                                  }, -- suncleric
