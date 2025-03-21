@@ -349,11 +349,15 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
             IsBest = 0,
             Pet = false,
         }, --]]
-      
-        -- Priests
-        [DS["SPELL_CURE_DISEASE"]]          = {
-            Types = {DC.DISEASE},
-            IsBest = 0,
+        -- Suncleric
+        [DS["SPELL_SHATER_MAGIC"]]          = {
+            Types = {DC.MAGIC},
+            IsBest = 1,
+            Pet = false,
+        },
+        [DS["SPELL_SANCTIFY"]]          = {
+            Types = {DC.CURSE},
+            IsBest = 1,
             Pet = false,
         },
         -- Priests
@@ -1092,6 +1096,8 @@ function D:GetSpellsTranslations(FromDIAG)
 
 
     Spells = {
+        ["SPELL_SANCTIFY"]              = {     524968,                                  }, -- suncleric
+        ["SPELL_SHATER_MAGIC"]          = {     804067,                                  }, -- suncleric
         ["SPELL_POLYMORPH"]             = {     118,                                     },
         ["SPELL_CYCLONE"]               = {     33786,                                   },
         ["SPELL_CURE_DISEASE"]          = {     528,                                     },
