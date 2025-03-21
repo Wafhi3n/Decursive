@@ -361,6 +361,12 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
             Pet = false,
         },
         -- Priests
+        [DS["SPELL_CURE_DISEASE"]]          = {
+            Types = {DC.DISEASE},
+            IsBest = 0,
+            Pet = false,
+        },
+        -- Priests
         [DS["SPELL_ABOLISH_DISEASE"]]       = {
             Types = {DC.DISEASE},
             IsBest = 1,
