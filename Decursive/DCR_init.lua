@@ -360,6 +360,11 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
             IsBest = 1,
             Pet = false,
         },
+        [DS["SPELL_BLIGHTBREAKER"]]          = {
+            Types = {DC.CURSE, DC.POISON},
+            IsBest = 1,
+            Pet = false,
+        },        
         -- Priests
         [DS["SPELL_CURE_DISEASE"]]          = {
             Types = {DC.DISEASE},
@@ -1102,6 +1107,8 @@ function D:GetSpellsTranslations(FromDIAG)
 
 
     Spells = {
+--      ["SPELL_SURVIVAL_KIT"]          = {     524968,                                  }, -- ranger
+        ["SPELL_BLIGHTBREAKER"]         = {     804050,                                  }, -- suncleric
         ["SPELL_SANCTIFY"]              = {     524968,                                  }, -- suncleric
         ["SPELL_SHATER_MAGIC"]          = {     804067,                                  }, -- suncleric
         ["SPELL_POLYMORPH"]             = {     118,                                     },
