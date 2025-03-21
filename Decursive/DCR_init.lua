@@ -376,7 +376,7 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
             Pet = false,
         },
         [DS["SPELL_BLIGHTBREAKER"]]          = {
-            Types = {DC.CURSE, DC.POISON},
+            Types = {DC.DISEASE, DC.POISON},
             IsBest = 1,
             Pet = false,
         },        
