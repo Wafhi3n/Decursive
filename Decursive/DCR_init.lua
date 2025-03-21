@@ -1103,7 +1103,7 @@ function D:GetSpellsTranslations(FromDIAG)
 
     Spells = {
         ["SPELL_SANCTIFY"]              = {     524968,                                  }, -- suncleric
-        ["SPELL_SHATER_MAGIC"]          = {     804067,                                  },
+        ["SPELL_SHATER_MAGIC"]          = {     804067,                                  }, -- suncleric
         ["SPELL_POLYMORPH"]             = {     118,                                     },
         ["SPELL_CYCLONE"]               = {     33786,                                   },
         ["SPELL_CURE_DISEASE"]          = {     528,                                     },
