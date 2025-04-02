@@ -358,6 +358,22 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
         --    Pet = false,
         --},
         
+        -- WITCHDOCTOR
+        [DS["SPELL_ALLCURE_ELIXIR"]]          = {
+            Types = {DC.DISEASE,DC.POISON,DC.CURSE},
+            IsBest = 0,
+            Pet = false,
+        },
+        [DS["SPELL_MAGICBREAK"]]          = {
+            Types = {DC.MAGIC},
+            IsBest = 1,
+            Pet = false,
+        },
+        [DS["SPELL_PURIFY_WD"]]          = {
+            Types = {DC.CURSE},
+            IsBest = 1,
+            Pet = false,
+        },
         -- RANGER
         [DS["SPELL_SURVIVAL_POTION"]]          = {
             Types = {DC.MAGIC,DC.POISON,DC.BLEED},
@@ -1120,10 +1136,10 @@ function D:GetSpellsTranslations(FromDIAG)
     local GetSpellInfo = _G.GetSpellInfo;
 
     local Spells = {};
-
-
     Spells = {
-        --["SPELL_stoneform"]             = {     20594 ,                                  }, -- ranger
+        ["SPELL_ALLCURE_ELIXIR"]        = {     804049 ,                                 }, -- witchdoctor
+        ["SPELL_MAGICBREAK"]            = {     520155 ,                                 }, -- witchdoctor
+        ["SPELL_PURIFY_WD"]             = {     704134 ,                                 }, -- witchdoctor
         ["SPELL_SURVIVAL_POTION"]       = {     802839 ,                                 }, -- ranger
         ["SPELL_BLIGHTBREAKER"]         = {     804050,                                  }, -- suncleric
         ["SPELL_SANCTIFY"]              = {     524968,                                  }, -- suncleric
