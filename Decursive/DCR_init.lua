@@ -61,6 +61,36 @@ if not D.LC then
     D.LC = {};
 end
 
+-- Inject CoA custom class display names (not in LOCALIZED_CLASS_NAMES_MALE)
+local CoAClassDisplayNames = {
+    ["SUNCLERIC"]    = "Suncleric",
+    ["BARBARIAN"]    = "Barbarian",
+    ["WITCHDOCTOR"]  = "Witch Doctor",
+    ["DEMONHUNTER"]  = "Demon Hunter",
+    ["WITCHHUNTER"]  = "Witch Hunter",
+    ["STORMBRINGER"] = "Stormbringer",
+    ["FLESHWARDEN"]  = "Fleshwarden",
+    ["GUARDIAN"]     = "Guardian",
+    ["MONK"]         = "Monk",
+    ["SONOFARUGAL"]  = "Son of a Rugal",
+    ["RANGER"]       = "Ranger",
+    ["PROPHET"]      = "Prophet",
+    ["PYROMANCER"]   = "Pyromancer",
+    ["CULTIST"]      = "Cultist",
+    ["NECROMANCER"]  = "Necromancer",
+    ["TINKER"]       = "Tinker",
+    ["REAPER"]       = "Reaper",
+    ["WILDWALKER"]   = "Wildwalker",
+    ["STARCALLER"]   = "Starcaller",
+    ["SPIRITMAGE"]   = "Spirit Mage",
+    ["CHRONOMANCER"] = "Chronomancer",
+};
+for token, name in pairs(CoAClassDisplayNames) do
+    if not D.LC[token] then
+        D.LC[token] = name;
+    end
+end
+
 D.DcrFullyInitialized = false;
 
 local L = D.L;
@@ -333,88 +363,78 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
     -- /script DcrC.SpellsToUse[DcrC.DS["SPELL_POLYMORPH"]] = {  Types = {DcrC.CHARMED}, IsBest = false, Pet = false, Rank = "1 : Pig"}; Dcr:Configure();
 
     -- SPELL TABLE -- must be parsed after localisation is loaded {{{
-    DC.SpellsToUse = {
+    -- Use addSpell helper to safely skip nil/lost DS keys (e.g. on CoA classless server)
+    DC.SpellsToUse = {};
+    do
+        local function addSpell(name, data)
+            local id = DS[name]
+            if id and id ~= "_LOST SPELL_" then DC.SpellsToUse[id] = data end
+        end
 
-        --[[
-        -- used for testing only
-        [DS["Dampen Magic"] ]       = {
-        Types = {DC.MAGIC},--, DC.DISEASE, DC.POISON},
-        IsBest = 0,
-        Pet = false,
-        }, --]]
-        --[[
-        -- used for testing only
-        [DS["Amplify Magic"] ]      = {
-            Types = {DC.DISEASE, DC.POISON},
-            IsBest = 0,
-            Pet = false,
-        }, --]]
-      
         -- Druids
-        [DS["SPELL_CURE_POISON"]] = {
+        addSpell("SPELL_CURE_POISON", {
             Types = {DC.POISON},
             IsBest = 0,
             Pet = false,
-        },
+        })
         -- Druids
-        [DS["SPELL_ABOLISH_POISON"]] = {
+        addSpell("SPELL_ABOLISH_POISON", {
             Types = {DC.POISON},
             IsBest = 1,
             Pet = false,
-        },
+        })
         -- Druids
-        [DS["SPELL_CYCLONE"]] = {
+        addSpell("SPELL_CYCLONE", {
             Types = {DC.CHARMED},
             IsBest = 0,
             Pet = false,
-        },
+        })
         -- Mages and Druids
-        [DS["SPELL_REMOVE_CURSE"]] = {
+        addSpell("SPELL_REMOVE_CURSE", {
             Types = {DC.CURSE},
             IsBest = 0,
             Pet = false,
-        },
+        })
 
         -- Hunters http://www.wowhead.com/?spell=19801
-        [DS["SPELL_TRANQUILIZING_SHOT"]] = {
+        addSpell("SPELL_TRANQUILIZING_SHOT", {
             Types = {DC.ENEMYMAGIC},
             IsBest = 0,
             Pet = false,
-        },
+        })
 
         -- Mages
-        [DS["SPELL_POLYMORPH"]] = {
+        addSpell("SPELL_POLYMORPH", {
             Types = {DC.CHARMED},
             IsBest = 0,
             Pet = false,
             Rank = 1,
-        },
+        })
 
         -- Paladins
-        [DS["SPELL_PURIFY"]] = {
+        addSpell("SPELL_PURIFY", {
             Types = {DC.MAGIC, DC.DISEASE, DC.POISON},
             IsBest = 1,
             Pet = false,
-        },
+        })
         -- Paladins
-        [DS["SPELL_CLEANSE"]] = {
+        addSpell("SPELL_CLEANSE", {
             Types = {DC.MAGIC, DC.DISEASE, DC.POISON},
             IsBest = 2,
             Pet = false,
-        },
+        })
 
         -- Priests
-        [DS["SPELL_CURE_DISEASE"]] = {
+        addSpell("SPELL_CURE_DISEASE", {
             Types = {DC.DISEASE},
             IsBest = 0,
             Pet = false,
-        },
+        })
         -- Priests
-        [DS["SPELL_ABOLISH_DISEASE"]] = {
+        addSpell("SPELL_ABOLISH_DISEASE", {
             Types = {DC.DISEASE},
             IsBest = 1,
             Pet = false,
-
             EnhancedBy = DS["TALENT_BODY_AND_SOUL"],
             EnhancedByCheck = function ()
                 return (select(5, GetTalentInfo(2,20))) > 0;
@@ -426,78 +446,93 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
                     [DC.POISON]  = true,
                 },
             }
-        },
+        })
         -- Priests
-        [DS["SPELL_DISPELL_MAGIC"]] = {
+        addSpell("SPELL_DISPELL_MAGIC", {
             Types = {DC.MAGIC, DC.ENEMYMAGIC},
             IsBest = 1,
             Pet = false,
-        },
+        })
 
         -- Shamans
-        [DS["SPELL_CURE_TOXINS"]] = {
+        addSpell("SPELL_CURE_TOXINS", {
             Types = {DC.POISON, DC.DISEASE},
             IsBest = 1,
             Pet = false,
-        },
+        })
         -- Shaman resto
-        [DS["CLEANSE_SPIRIT"]] = {
+        addSpell("CLEANSE_SPIRIT", {
             Types = {DC.CURSE, DC.DISEASE, DC.POISON},
             IsBest = 3,
             Pet = false,
-        },
+        })
         -- Shamans http://www.wowhead.com/?spell=51514
-        [DS["SPELL_HEX"]] = {
+        addSpell("SPELL_HEX", {
             Types = {DC.CHARMED},
             IsBest = 0,
             Pet = false,
-        },
-        --[=[ -- disabled because of Korean locals... see below
-        -- Shamans
-        [DS["SPELL_PURGE"]]                 = {
-            Types = {DC.ENEMYMAGIC},
-            IsBest = 0,
-            Pet = false,
-        }, --]=]
+        })
         -- Warlock
-        [DS["SPELL_FEAR"]] = {
+        addSpell("SPELL_FEAR", {
             Types = {DC.CHARMED},
             IsBest = 0,
             Pet = false,
             Rank = 1,
-        },
+        })
         -- Warlock
-        [DS["PET_FEL_CAST"]] = {
+        addSpell("PET_FEL_CAST", {
             Types = {DC.MAGIC, DC.ENEMYMAGIC},
             IsBest = 1,
             Pet = true,
-        },
-        --[=[
-        -- Warlock
-        [DS["PET_DOOM_CAST"]] = {
-            Types = {DC.MAGIC, DC.ENEMYMAGIC},
-            IsBest = 1,
-            Pet = true,
-        },
-        ]=]
-    };
+        })
+    end -- SPELL TABLE }}};
+
+    -- Inject CoA class-specific spells from DB into DC.SpellsToUse
+    if C_Player and C_Player:IsCustomClass() then
+        local _, classToken = UnitClass("player");
+        local classSpells = DC.CoAClassDB and DC.CoAClassDB[classToken];
+        if classSpells then
+            for key, data in pairs(classSpells) do
+                local spellName = DS[key];
+                if spellName and spellName ~= "_LOST SPELL_" then
+                    DC.SpellsToUse[spellName] = {
+                        Types  = data.Types,
+                        IsBest = data.IsBest,
+                        Pet    = data.Pet,
+                    };
+                end
+            end
+        end
+    end
 
     -- Implementation differences per realm
-    if C_Player:IsHero() then
-        -- Mages
-        DC.SpellsToUse[DS["SPELL_REMOVE_LESSER_CURSE"]] = {
-            Types = {DC.CURSE},
-            IsBest = 0,
-            Pet = false,
-        }
-    elseif C_Player:IsDefaultClass() then
-        -- Paladins
-        DC.SpellsToUse[DS["SPELL_PURIFY"]] = {
-            Types = {DC.DISEASE, DC.POISON},
-            IsBest = 1,
-            Pet = false,
-        }
-    elseif C_Player:IsCustomClass() then
+    do
+        local function addSpellExtra(name, data)
+            local id = DS[name]
+            if id and id ~= "_LOST SPELL_" then DC.SpellsToUse[id] = data end
+        end
+        if C_Player and C_Player:IsHero() then
+            -- Mages
+            addSpellExtra("SPELL_REMOVE_LESSER_CURSE", {
+                Types = {DC.CURSE},
+                IsBest = 0,
+                Pet = false,
+            })
+        elseif C_Player and C_Player:IsDefaultClass() then
+            -- Paladins
+            addSpellExtra("SPELL_PURIFY", {
+                Types = {DC.DISEASE, DC.POISON},
+                IsBest = 1,
+                Pet = false,
+            })
+        elseif C_Player and C_Player:IsCustomClass() then
+            -- CoA classless: same as hero — mages remove lesser curse available
+            addSpellExtra("SPELL_REMOVE_LESSER_CURSE", {
+                Types = {DC.CURSE},
+                IsBest = 0,
+                Pet = false,
+            })
+        end
     end
     
     -- }}}
@@ -532,6 +567,12 @@ function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
     if T._SelfDiagnostic() == 2 then
         return false;
     end
+
+    -- AceDB may not be ready if OnInitialize failed silently (e.g. on Ascension custom servers)
+    if not D.db then
+        return false;
+    end
+
     T._CatchAllErrors = true; -- During init we catch all the errors else, if a library fails we won't know it.
 
 
@@ -593,6 +634,20 @@ function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
         SLASH_DECURSIVESHOWORDER1 = D.CONF.MACRO_SHOW_ORDER;
         SlashCmdList["DECURSIVESHOWORDER"] = function(msg)
             D:Show_Cure_Order();
+        end
+
+        SLASH_DCRCOAINFO1 = "/dcrcoainfo";
+        SlashCmdList["DCRCOAINFO"] = function(msg)
+            if msg and msg:lower() == "scan" then
+                D:CoAScanSpellBook();
+            else
+                D:CoAPrintClassInfo();
+            end
+        end
+
+        SLASH_DCRCOASETUP1 = "/dcrcoasetup";
+        SlashCmdList["DCRCOASETUP"] = function()
+            D:CoASetupOpen();
         end
     end -- }}}
 
@@ -657,7 +712,7 @@ function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
     -- Configure specific profile dependent data
     D:SetConfiguration();
 
-    if FirstEnable and not D.db.global.NoStartMessages then
+    if FirstEnable and D.db and not D.db.global.NoStartMessages then
         D:ColorPrint(0.3, 0.5, 1, L["IS_HERE_MSG"]);
         D:ColorPrint(0.3, 0.5, 1, L["SHOW_MSG"]);
 
@@ -676,6 +731,13 @@ function D:SetConfiguration()
     if T._SelfDiagnostic() == 2 then
         return false;
     end
+
+    -- AceDB may not be ready yet if events fire before OnInitialize completes
+    -- (e.g. SPELLS_CHANGED / PLAYER_TALENT_UPDATE on Ascension custom servers)
+    if not D.db then
+        return false;
+    end
+
     T._CatchAllErrors = true; -- During init we catch all the errors else, if a library fails we won't know it.
 
 
@@ -702,7 +764,15 @@ function D:SetConfiguration()
     D.Status.MouseOveringMUF = false;
     D.Status.TestLayout = false;
     D.Status.TestLayoutUNum = 25;
-    
+
+    -- Unit arrays must always be initialized as empty tables (never nil)
+    -- so that UNIT_AURA and UNIT_PET events can safely index them
+    -- before GroupChanged/GetUnitArray has had a chance to populate them.
+    D.Status.Unit_Array_UnitToGUID  = D.Status.Unit_Array_UnitToGUID  or {};
+    D.Status.Unit_Array_GUIDToUnit  = D.Status.Unit_Array_GUIDToUnit  or {};
+    D.Status.Unit_Array             = D.Status.Unit_Array             or {};
+    D.Status.InternalPrioList       = D.Status.InternalPrioList       or {};
+    D.Status.InternalSkipList       = D.Status.InternalSkipList       or {};
 
     -- if we log in and we are already fighting...
     if InCombatLockdown() then
@@ -732,8 +802,12 @@ function D:SetConfiguration()
     end
 
     if D.profile.DisableAbolish then
-        DC.SpellsToUse[DS["SPELL_CURE_DISEASE"]].IsBest = 10;
-        DC.SpellsToUse[DS["SPELL_CURE_POISON"]].IsBest = 10;
+        if DC.SpellsToUse[DS["SPELL_CURE_DISEASE"]] then
+            DC.SpellsToUse[DS["SPELL_CURE_DISEASE"]].IsBest = 10;
+        end
+        if DC.SpellsToUse[DS["SPELL_CURE_POISON"]] then
+            DC.SpellsToUse[DS["SPELL_CURE_POISON"]].IsBest = 10;
+        end
     end
 
     D:Init(); -- initialize Dcr core (set frames display, scans available cleansing spells)
@@ -1064,47 +1138,50 @@ function D:GetSpellsTranslations(FromDIAG)
         --['STALVAN_CURSE'] = { 3105, }, --temp to test
      }
 
-    if C_Player:IsHero() then
-        local heroSpells = {
-            ["SPELL_POLYMORPH"] = { 118, }, -- mage
-            ["SPELL_CYCLONE"] = { 33786, }, -- druid
-            ["SPELL_CURE_DISEASE"] = { 528, },
-            ["SPELL_ABOLISH_DISEASE"] = { 552, },
-            ["SPELL_PURIFY"] = { 1152, }, -- paladins
-            ["SPELL_CLEANSE"] = { 4987, },
-            ["SPELL_DISPELL_MAGIC"] = { 527, 988, },
-            ["SPELL_CURE_TOXINS"] = { 526, }, -- shamans
-            ["SPELL_CURE_POISON"] = { 8946, },
-            ["SPELL_ABOLISH_POISON"] = { 2893, },
-            ["SPELL_REMOVE_LESSER_CURSE"] = { 475, }, -- Mages
-            ["SPELL_REMOVE_CURSE"] = { 2782, }, -- Druids
-            ['SPELL_TRANQUILIZING_SHOT'] = { 19801, }, -- Hunter
-            ['SPELL_HEX'] = { 51514, }, -- shamans
-            ["CLEANSE_SPIRIT"] = { 51886, },
-            ["SPELL_PURGE"] = { 370, 8012, },
-            ["PET_FEL_CAST"] = { 19505, 19731, 19734, 19736, 27276, 27277,},
-            ["SPELL_FEAR"] = { 5782 },
-            -- Same id as priest dispel magic?? ["PET_DOOM_CAST"] = { 527, 988, },
-            ["CURSEOFTONGUES"] = { 1714, 11719, },
-            ["DCR_LOC_SILENCE"] = { 15487, },
-            ["DCR_LOC_MINDVISION"] = { 2096, 10909, },
-            ['Phase Shift'] = { 4511, },
-            ['Banish'] = { 710, 18647, },
-            ['Frost Trap Aura'] = { 13810, },
-            ['Arcane Blast'] = { 30451, },
-            ['Prowl'] = { 5215, 6783, 9913, 24450, },
-            ['Stealth'] = { 1784, 1785, 1786, 1787, },
-            ['Shadowmeld'] = { 58984, },
-            ['Invisibility'] = { 66, },
-            ['Lesser Invisibility'] = { 7870, },
-            ['Ice Armor'] = { 7302, 7320, 10219, 10220, 27124, },
-            ['Unstable Affliction'] = { 30108, 30404, 30405, },
-            ['Dampen Magic'] = { 604, },
-            ['Amplify Magic'] = { 1008, },
-            ['TALENT_BODY_AND_SOUL'] = { 64129, 65081, },
-       }
-       for k,v in pairs(heroSpells) do Spells[k] = v end
-
+    -- CoA / Hero classless both use standard 3.3.5 spell IDs
+    local heroSpells = {
+        ["SPELL_POLYMORPH"] = { 118, }, -- mage
+        ["SPELL_CYCLONE"] = { 33786, }, -- druid
+        ["SPELL_CURE_DISEASE"] = { 528, },
+        ["SPELL_ABOLISH_DISEASE"] = { 552, },
+        ["SPELL_PURIFY"] = { 1152, }, -- paladins
+        ["SPELL_CLEANSE"] = { 4987, },
+        ["SPELL_DISPELL_MAGIC"] = { 527, 988, },
+        ["SPELL_CURE_TOXINS"] = { 526, }, -- shamans
+        ["SPELL_CURE_POISON"] = { 8946, },
+        ["SPELL_ABOLISH_POISON"] = { 2893, },
+        ["SPELL_REMOVE_LESSER_CURSE"] = { 475, }, -- Mages
+        ["SPELL_REMOVE_CURSE"] = { 2782, }, -- Druids
+        ['SPELL_TRANQUILIZING_SHOT'] = { 19801, }, -- Hunter
+        ['SPELL_HEX'] = { 51514, }, -- shamans
+        ["CLEANSE_SPIRIT"] = { 51886, },
+        ["SPELL_PURGE"] = { 370, 8012, },
+        ["PET_FEL_CAST"] = { 19505, 19731, 19734, 19736, 27276, 27277,},
+        ["SPELL_FEAR"] = { 5782 },
+        -- Same id as priest dispel magic?? ["PET_DOOM_CAST"] = { 527, 988, },
+        ["CURSEOFTONGUES"] = { 1714, 11719, },
+        ["DCR_LOC_SILENCE"] = { 15487, },
+        ["DCR_LOC_MINDVISION"] = { 2096, 10909, },
+        ['Phase Shift'] = { 4511, },
+        ['Banish'] = { 710, 18647, },
+        ['Frost Trap Aura'] = { 13810, },
+        ['Arcane Blast'] = { 30451, },
+        ['Prowl'] = { 5215, 6783, 9913, 24450, },
+        ['Stealth'] = { 1784, 1785, 1786, 1787, },
+        ['Shadowmeld'] = { 58984, },
+        ['Invisibility'] = { 66, },
+        ['Lesser Invisibility'] = { 7870, },
+        ['Ice Armor'] = { 7302, 7320, 10219, 10220, 27124, },
+        ['Unstable Affliction'] = { 30108, 30404, 30405, },
+        ['Dampen Magic'] = { 604, },
+        ['Amplify Magic'] = { 1008, },
+        ['TALENT_BODY_AND_SOUL'] = { 64129, 65081, },
+    }
+    if not C_Player then
+        self:Debug("C_Player API not available, using hero spell table by default.")
+        for k,v in pairs(heroSpells) do Spells[k] = v end
+    elseif C_Player:IsHero() then
+        for k,v in pairs(heroSpells) do Spells[k] = v end
     elseif C_Player:IsDefaultClass() then
         local defaultSpells = {
             ["SPELL_POLYMORPH"] = { 1100118, }, -- mage
@@ -1145,9 +1222,25 @@ function D:GetSpellsTranslations(FromDIAG)
         }
         for k,v in pairs(defaultSpells) do Spells[k] = v end
 
-    elseif C_Player:IsCustomClass() then -- CoA
-        Spells = {}
-        print("CoA is not currently supported.  Spell IDs need to be set up")
+    elseif C_Player:IsCustomClass() then -- CoA classless
+        local _, classToken = UnitClass("player");
+        local classSpells = DC.CoAClassDB and DC.CoAClassDB[classToken];
+        if classSpells and next(classSpells) ~= nil then
+            for key, data in pairs(classSpells) do
+                Spells[key] = data.ids;
+            end
+            -- Fill in heroSpells entries not already covered by the DB
+            for k, v in pairs(heroSpells) do
+                if not Spells[k] then Spells[k] = v; end
+            end
+        else
+            if classSpells then
+                self:Debug("CoA class " .. tostring(classToken) .. " has no DB entries, using heroSpells");
+            else
+                self:Debug("Unknown CoA class: " .. tostring(classToken) .. " — add to db/Dcr_CoAClassDB.lua");
+            end
+            for k, v in pairs(heroSpells) do Spells[k] = v; end
+        end
     else
         self:Debug("Player class type cannot be determined or is not set up.  Aborting Spell Table setup")
     end

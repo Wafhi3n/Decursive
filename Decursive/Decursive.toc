@@ -26,6 +26,7 @@
 ## OptionalDeps: Ace3, CallbackHandler-1.0, LibQTip-1.0, LibDataBroker-1.1, LibDBIcon-1.0 
 
 ## LoadManagers: AddonLoader
+## X-LoadOn-Always: 1
 ## X-LoadOn-Class: Mage, Priest, Paladin, Druid, Hunter, Warlock, Shaman
 
 
@@ -53,6 +54,9 @@ DCR_init.lua
 Dcr_LDB.lua
 Dcr_utils.lua
 
+db\Dcr_CoAClassDB.lua
+db\Dcr_CoADebug.lua
+db\Dcr_CoASetup.lua
 
 Dcr_opt.lua
 Dcr_Events.lua

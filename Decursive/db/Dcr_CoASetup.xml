@@ -1,0 +1,190 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+    <Frame name="DecursiveCoASetupFrame" parent="UIParent"
+           inherits="DialogBoxFrame" movable="true" enableMouse="true"
+           frameStrata="DIALOG" hidden="true">
+        <Size x="720" y="580"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Scripts>
+            <OnLoad>
+                self:RegisterForDrag("LeftButton");
+                self:SetScript("OnDragStart", self.StartMoving);
+                self:SetScript("OnDragStop",  self.StopMovingOrSizing);
+            </OnLoad>
+            <OnShow>
+                -- Scan spellbook when panel opens
+                local addonName, T = ...;
+                if T and T.Dcr then T.Dcr:CoASetupScan(); end
+            </OnShow>
+        </Scripts>
+
+        <!-- Title -->
+        <FontString name="$parentTitle" inherits="GameFontNormalLarge"
+                    text="Decursive — CoA Class Setup">
+            <Anchors>
+                <Anchor point="TOP" relativePoint="TOP" y="-8"/>
+            </Anchors>
+        </FontString>
+
+        <!-- Class info label -->
+        <FontString name="DecursiveCoASetupClassLabel" inherits="GameFontNormal"
+                    text="Class: —">
+            <Anchors>
+                <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="14" y="-36"/>
+            </Anchors>
+        </FontString>
+
+        <!-- SCAN button -->
+        <Button name="DecursiveCoASetupScanBtn" inherits="UIPanelButtonTemplate"
+                text="Scan">
+            <Size x="80" y="22"/>
+            <Anchors>
+                <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-110" y="-32"/>
+            </Anchors>
+            <Scripts>
+                <OnClick>
+                    local addonName, T = ...;
+                    if T and T.Dcr then T.Dcr:CoASetupScan(); end
+                </OnClick>
+            </Scripts>
+        </Button>
+
+        <!-- GENERATE button -->
+        <Button name="DecursiveCoASetupGenBtn" inherits="UIPanelButtonTemplate"
+                text="Generate">
+            <Size x="80" y="22"/>
+            <Anchors>
+                <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-22" y="-32"/>
+            </Anchors>
+            <Scripts>
+                <OnClick>
+                    local addonName, T = ...;
+                    if T and T.Dcr then T.Dcr:CoASetupGenerate(); end
+                </OnClick>
+            </Scripts>
+        </Button>
+
+        <!-- Column headers -->
+        <FontString name="$parentHdrName" inherits="GameFontNormalSmall" text="Spell Name">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="18" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrID" inherits="GameFontNormalSmall" text="ID">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="178" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrM" inherits="GameFontNormalSmall" text="M">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="252" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrD" inherits="GameFontNormalSmall" text="D">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="282" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrP" inherits="GameFontNormalSmall" text="P">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="312" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrC" inherits="GameFontNormalSmall" text="C">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="342" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrCH" inherits="GameFontNormalSmall" text="CH">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="368" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrEN" inherits="GameFontNormalSmall" text="EN">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="398" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrBest" inherits="GameFontNormalSmall" text="Best">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="430" y="-60"/></Anchors>
+        </FontString>
+        <FontString name="$parentHdrPet" inherits="GameFontNormalSmall" text="Pet">
+            <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="468" y="-60"/></Anchors>
+        </FontString>
+
+        <!-- Scroll frame for spell rows (top half of panel) -->
+        <ScrollFrame name="DecursiveCoASetupScrollFrame" enableMouse="true">
+            <Size x="510" y="260"/>
+            <Anchors>
+                <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="14" y="-72"/>
+            </Anchors>
+            <ScrollChild>
+                <Frame name="DecursiveCoASetupContent">
+                    <Size x="510" y="1"/>
+                </Frame>
+            </ScrollChild>
+        </ScrollFrame>
+
+        <!-- Scroll bar for the spell list -->
+        <Slider name="DecursiveCoASetupScrollBar" inherits="UIPanelScrollBarTemplate">
+            <Anchors>
+                <Anchor point="TOPLEFT" relativeTo="DecursiveCoASetupScrollFrame"
+                        relativePoint="TOPRIGHT" x="2" y="-16"/>
+                <Anchor point="BOTTOMLEFT" relativeTo="DecursiveCoASetupScrollFrame"
+                        relativePoint="BOTTOMRIGHT" x="2" y="16"/>
+            </Anchors>
+            <Scripts>
+                <OnValueChanged>
+                    DecursiveCoASetupScrollFrame:SetVerticalScroll(value);
+                </OnValueChanged>
+            </Scripts>
+        </Slider>
+
+        <!-- Output EditBox label -->
+        <FontString name="$parentOutputLabel" inherits="GameFontNormalSmall"
+                    text="Generated Lua (copy-paste into db/Dcr_CoAClassDB.lua):">
+            <Anchors>
+                <Anchor point="BOTTOMLEFT" relativeTo="DecursiveCoASetupScrollFrame"
+                        relativePoint="BOTTOMLEFT" x="0" y="-18"/>
+            </Anchors>
+        </FontString>
+
+        <!-- Output EditBox (multiline, selectable) -->
+        <ScrollFrame name="DecursiveCoASetupOutputScroll">
+            <Size x="524" y="160"/>
+            <Anchors>
+                <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="14" y="46"/>
+            </Anchors>
+            <ScrollChild>
+                <EditBox name="DecursiveCoASetupOutput" multiLine="true"
+                         autoFocus="false" maxLetters="65536">
+                    <Size x="524" y="160"/>
+                    <FontString inherits="ChatFontNormal"/>
+                    <Scripts>
+                        <OnLoad>
+                            self:SetTextInsets(4, 4, 4, 4);
+                        </OnLoad>
+                        <OnEscapePressed>
+                            self:ClearFocus();
+                        </OnEscapePressed>
+                    </Scripts>
+                </EditBox>
+            </ScrollChild>
+        </ScrollFrame>
+
+        <!-- Select All button -->
+        <Button name="DecursiveCoASetupSelectAllBtn" inherits="UIPanelButtonTemplate"
+                text="Select All">
+            <Size x="80" y="22"/>
+            <Anchors>
+                <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-22" y="18"/>
+            </Anchors>
+            <Scripts>
+                <OnClick>
+                    local eb = _G["DecursiveCoASetupOutput"];
+                    if eb then
+                        eb:SetFocus();
+                        eb:HighlightText();
+                    end
+                </OnClick>
+            </Scripts>
+        </Button>
+
+        <!-- Close button -->
+        <Button name="$parentCloseBtn" inherits="UIPanelCloseButton">
+            <Anchors>
+                <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-2" y="-2"/>
+            </Anchors>
+        </Button>
+
+    </Frame>
+
+</Ui>

@@ -67,6 +67,25 @@ local _;
 
 D:GetSpellsTranslations(false); -- Register spell translations
 
+-- Helpers to build spell-ID tables without crashing when DS[name] is nil
+-- (happens on custom servers like CoA / Ascension where spell IDs differ)
+local function ds_set(...)
+    local t = {}
+    for i = 1, select('#', ...) do
+        local id = select(i, ...)
+        if id then t[id] = true end
+    end
+    return t
+end
+local function ds_list(...)
+    local t = {}
+    for i = 1, select('#', ...) do
+        local id = select(i, ...)
+        if id then t[#t + 1] = id end
+    end
+    return t
+end
+
 function D:GetDefaultsSettings()
     return {
         -- default settings {{{
@@ -288,26 +307,26 @@ function D:GetDefaultsSettings()
 
             -- Debuffs {{{
             -- those debuffs prevent us from curing the unit
-            DebuffsToIgnore = {
-                [DS["Phase Shift"]]         = true,
-                [DS["Banish"]]              = true,
-                [DS["Frost Trap Aura"]]     = true,
-            },
+            DebuffsToIgnore = ds_set(
+                DS["Phase Shift"],
+                DS["Banish"],
+                DS["Frost Trap Aura"]
+            ),
 
             -- thoses debuffs are in fact buffs...
-            BuffDebuff = {
-                [DS["DREAMLESSSLEEP"]]      = true,
-                [DS["GDREAMLESSSLEEP"]]     = true,
-                [DS["MDREAMLESSSLEEP"]]     = true,
-                [DS["DCR_LOC_MINDVISION"]]  = true,
-                [DS["MUTATINGINJECTION"]]   = true,
-                [DS["Arcane Blast"]]        = true,
-            },
+            BuffDebuff = ds_set(
+                DS["DREAMLESSSLEEP"],
+                DS["GDREAMLESSSLEEP"],
+                DS["MDREAMLESSSLEEP"],
+                DS["DCR_LOC_MINDVISION"],
+                DS["MUTATINGINJECTION"],
+                DS["Arcane Blast"]
+            ),
 
             DebuffAlwaysSkipList = {
             },
 
-            DebuffsSkipList = {
+            DebuffsSkipList = ds_list(
                 DS["DCR_LOC_SILENCE"],
                 DS["ANCIENTHYSTERIA"],
                 DS["IGNITE"],
@@ -319,62 +338,62 @@ function D:GetDefaultsSettings()
                 DS["CURSEOFTONGUES"],
                 DS["SONICBURST"],
                 DS["DELUSIONOFJINDO"]
-            },
+            ),
 
             skipByClass = {
-                ["WARRIOR"] = {
-                    [DS["ANCIENTHYSTERIA"]]   = true,
-                    [DS["IGNITE"]]        = true,
-                    [DS["TAINTEDMIND"]]       = true,
-                    [DS["WIDOWSEMBRACE"]]    = true,
-                    [DS["CURSEOFTONGUES"]]   = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["ROGUE"] = {
-                    [DS["DCR_LOC_SILENCE"]]           = true,
-                    [DS["ANCIENTHYSTERIA"]]   = true,
-                    [DS["IGNITE"]]        = true,
-                    [DS["TAINTEDMIND"]]       = true,
-                    [DS["WIDOWSEMBRACE"]]    = true,
-                    [DS["CURSEOFTONGUES"]]   = true,
-                    [DS["SONICBURST"]]        = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["HUNTER"] = {
-                    [DS["MAGMASHAKLES"]]     = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["MAGE"] = {
-                    [DS["MAGMASHAKLES"]]     = true,
-                    [DS["CRIPLES"]]            = true,
-                    [DS["DUSTCLOUD"]]         = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["WARLOCK"] = {
-                    [DS["CRIPLES"]]            = true,
-                    [DS["DUSTCLOUD"]]         = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["DRUID"] = {
-                    [DS["CRIPLES"]]            = true,
-                    [DS["DUSTCLOUD"]]         = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["PALADIN"] = {
-                    [DS["CRIPLES"]]            = true,
-                    [DS["DUSTCLOUD"]]         = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["PRIEST"] = {
-                    [DS["CRIPLES"]]            = true,
-                    [DS["DUSTCLOUD"]]         = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
-                ["SHAMAN"] = {
-                    [DS["CRIPLES"]]            = true,
-                    [DS["DUSTCLOUD"]]         = true,
-                    [DS["DELUSIONOFJINDO"]]= true,
-                },
+                ["WARRIOR"] = ds_set(
+                    DS["ANCIENTHYSTERIA"],
+                    DS["IGNITE"],
+                    DS["TAINTEDMIND"],
+                    DS["WIDOWSEMBRACE"],
+                    DS["CURSEOFTONGUES"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["ROGUE"] = ds_set(
+                    DS["DCR_LOC_SILENCE"],
+                    DS["ANCIENTHYSTERIA"],
+                    DS["IGNITE"],
+                    DS["TAINTEDMIND"],
+                    DS["WIDOWSEMBRACE"],
+                    DS["CURSEOFTONGUES"],
+                    DS["SONICBURST"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["HUNTER"] = ds_set(
+                    DS["MAGMASHAKLES"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["MAGE"] = ds_set(
+                    DS["MAGMASHAKLES"],
+                    DS["CRIPLES"],
+                    DS["DUSTCLOUD"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["WARLOCK"] = ds_set(
+                    DS["CRIPLES"],
+                    DS["DUSTCLOUD"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["DRUID"] = ds_set(
+                    DS["CRIPLES"],
+                    DS["DUSTCLOUD"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["PALADIN"] = ds_set(
+                    DS["CRIPLES"],
+                    DS["DUSTCLOUD"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["PRIEST"] = ds_set(
+                    DS["CRIPLES"],
+                    DS["DUSTCLOUD"],
+                    DS["DELUSIONOFJINDO"]
+                ),
+                ["SHAMAN"] = ds_set(
+                    DS["CRIPLES"],
+                    DS["DUSTCLOUD"],
+                    DS["DELUSIONOFJINDO"]
+                ),
                 ["DEATHKNIGHT"] = {
                 },
                 ["HERO"] = {},
@@ -1681,6 +1700,91 @@ local function GetOptions()
                 }
             }, -- }}}
 
+            CoAClasses = {
+                -- {{{
+                type = "group",
+                name = D:ColorText("Custom Classes", "FF44BBFF"),
+                desc = "CoA custom class spell configuration.",
+                order = 8,
+                args = {
+                    classInfo = {
+                        type = "description",
+                        name = function()
+                            if not DC.CoASetup then return "CoA Setup module not loaded."; end
+                            local _, classToken = UnitClass("player");
+                            local count = DC.CoASetup.spells and #DC.CoASetup.spells or 0;
+                            if count == 0 then
+                                return "Class: |cffffd700" .. tostring(classToken) .. "|r\n\nClick |cff44bbffScan Spellbook|r to detect your spells, check the dispel types for each spell, then click |cff44bbffGenerate Lua|r to get the code to paste into db/Dcr_CoAClassDB.lua.";
+                            end
+                            return "Class: |cffffd700" .. tostring(classToken) .. "|r  —  " .. count .. " spells found.  Check the dispel types below, then click |cff44bbffGenerate Lua|r.";
+                        end,
+                        order = 1,
+                    },
+                    scanBtn = {
+                        type = "execute",
+                        name = "Scan Spellbook",
+                        desc = "Scan your spellbook to populate the spell list below.",
+                        func = function()
+                            if D.CoASetupScan then D:CoASetupScan(); end
+                        end,
+                        order = 2,
+                    },
+                    generateBtn = {
+                        type = "execute",
+                        name = "Generate Lua",
+                        desc = "Generate Lua code to paste into db/Dcr_CoAClassDB.lua.",
+                        func = function()
+                            if D.CoASetupGenerate then
+                                D:CoASetupGenerate();
+                                LibStub("AceConfigRegistry-3.0"):NotifyChange("Decursive");
+                            end
+                        end,
+                        disabled = function()
+                            return not DC.CoASetup or not DC.CoASetup.spells or #DC.CoASetup.spells == 0;
+                        end,
+                        order = 3,
+                    },
+                    infoScanBtn = {
+                        type = "execute",
+                        name = "Print Class Info",
+                        desc = "Print CoA class detection info to chat (/dcrcoainfo).",
+                        func = function()
+                            if D.CoAPrintClassInfo then D:CoAPrintClassInfo(); end
+                        end,
+                        order = 4,
+                    },
+                    outputHeader = {
+                        type = "header",
+                        name = "Generated Lua  —  copy-paste into db/Dcr_CoAClassDB.lua",
+                        order = 5,
+                        hidden = function()
+                            return not DC.CoASetup or not DC.CoASetup.output or DC.CoASetup.output == "";
+                        end,
+                    },
+                    outputField = {
+                        type = "input",
+                        name = "",
+                        multiline = 10,
+                        width = "full",
+                        get = function() return DC.CoASetup and DC.CoASetup.output or ""; end,
+                        set = function() end,
+                        order = 6,
+                        hidden = function()
+                            return not DC.CoASetup or not DC.CoASetup.output or DC.CoASetup.output == "";
+                        end,
+                    },
+                    spellsHeader = {
+                        type = "header",
+                        name = "Spell List",
+                        order = 10,
+                        hidden = function()
+                            return not DC.CoASetup or not DC.CoASetup.spells or #DC.CoASetup.spells == 0;
+                        end,
+                    },
+                    -- spell_N entries added dynamically by D:CoASetupRebuildOptions()
+                },
+            }, -- }}}
+
             About = {
                 type = "group",
                 name = D:ColorText(L["OPT_ABOUT"], "FFFFFFFF"),
@@ -1755,6 +1859,7 @@ function D:ExportOptions ()
         [D:ColorText(L["OPT_CURINGOPTIONS"], "FFFF5533")] = "CureOptions",
         [D:ColorText(L["OPT_DEBUFFFILTER"], "FF99CCAA")] = "DebuffSkip",
         [D:ColorText(L["OPT_MACROOPTIONS"], "FFCC99BB")] = "Macro",
+        [D:ColorText("Custom Classes", "FF44BBFF")] = "CoAClasses",
         [D:ColorText(L["OPT_ABOUT"], "FFFFFFFF")] = "About",
     };
 
@@ -2077,9 +2182,9 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
 
         return {
             type = "toggle",
-            name = D:ColorText( LC[Class], "FF"..DC.HexClassColor[Class]) ..
+            name = D:ColorText( LC[Class] or Class, "FF"..D:GetClassHexColor(Class)) ..
             (CheckedByDefault and D:ColorText("  *", "FFFFAA00") or ""),
-            desc = str_format(L["OPT_AFFLICTEDBYSKIPPED"], LC[Class], DebuffName) ..
+            desc = str_format(L["OPT_AFFLICTEDBYSKIPPED"], LC[Class] or Class, DebuffName) ..
             (CheckedByDefault and D:ColorText(L["OPT_DEBCHECKEDBYDEF"], "FFFFAA00") or "");
             handler = {
                 ["Debuff"]=DebuffName,
@@ -2103,7 +2208,7 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
         local values = {};
 
         for i, class in pairs (DC.ClassNumToUName) do
-            values[i] = D:ColorText( LC[class], "FF"..DC.HexClassColor[class]) ..
+            values[i] = D:ColorText( LC[class] or class, "FF"..D:GetClassHexColor(class)) ..
             (DefaultSkipByClass[class][DebuffName] and D:ColorText("  *", "FFFFAA00") or "");
         end
 
