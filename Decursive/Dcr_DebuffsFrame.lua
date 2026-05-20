@@ -1291,7 +1291,9 @@ do
                 -- Between those instants, a reconfiguration can happen (pet dies or some spells become unavailable)
                 -- So we test before calling this api that we can still cure this debuff type
                 if Status.CuringSpells[DebuffType] then
-                    RangeStatus = IsSpellInRange(Status.CuringSpells[DebuffType], Unit);
+                    RangeStatus = IsSpellInRange(Status.CuringSpellsRange[DebuffType], Unit);
+                    -- nil = spell has no unit-target range (AoE/smart-cast) → assume in range
+                    if RangeStatus == nil then RangeStatus = 1; end
                 else
                     RangeStatus = false;
                 end

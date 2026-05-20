@@ -181,9 +181,10 @@ local function ApplySpellToggle(classToken, key, disabled)
         DC.SpellsToUse[spellName] = nil;
     else
         DC.SpellsToUse[spellName] = {
-            Types  = data.Types,
-            IsBest = data.IsBest,
-            Pet    = data.Pet,
+            Types      = data.Types,
+            IsBest     = data.IsBest,
+            Pet        = data.Pet,
+            RangeSpell = data.RangeSpell,  -- optional: targeted spell used for range check
         };
     end
 end

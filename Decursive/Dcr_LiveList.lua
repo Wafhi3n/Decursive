@@ -476,7 +476,9 @@ function LiveList:Update_Display() -- {{{
                         RangeStatus = (RangeStatus == DC.AFFLICTED or RangeStatus == DC.AFFLICTED_AND_CHARMED) and true or false;
                     else
                         if D.Status.CuringSpells[D.ManagedDebuffUnitCache[UnitID][1].Type] then
-                            RangeStatus = IsSpellInRange(D.Status.CuringSpells[D.ManagedDebuffUnitCache[UnitID][1].Type], UnitID);
+                            RangeStatus = IsSpellInRange(D.Status.CuringSpellsRange[D.ManagedDebuffUnitCache[UnitID][1].Type], UnitID);
+                            -- nil = AoE/smart-cast spell → assume in range
+                            if RangeStatus == nil then RangeStatus = 1; end
                         else
                             D:AddDebugText(
                                 "LiveList:Update_Display(): couldn't get range, DType:", D.ManagedDebuffUnitCache[UnitID][1].Type,

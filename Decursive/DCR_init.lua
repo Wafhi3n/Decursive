@@ -224,6 +224,7 @@ D.classprofile = {};
 D.Status = {};
 
 D.Status.CuringSpells = {};
+D.Status.CuringSpellsRange = {};
 D.Status.CuringSpellsPrio = {};
 D.Status.DelayedFunctionCalls = {};
 D.Status.DelayedFunctionCallsCount = 0;
@@ -496,9 +497,10 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
                 local spellName = DS[key];
                 if spellName and spellName ~= "_LOST SPELL_" then
                     DC.SpellsToUse[spellName] = {
-                        Types  = data.Types,
-                        IsBest = data.IsBest,
-                        Pet    = data.Pet,
+                        Types      = data.Types,
+                        IsBest     = data.IsBest,
+                        Pet        = data.Pet,
+                        RangeSpell = data.RangeSpell,
                     };
                 end
             end
@@ -750,6 +752,7 @@ function D:SetConfiguration()
     D.Status.FoundSpells = {};
     D.Status.PlayerOnlyTypes = {};
     D.Status.CuringSpells = {};
+    D.Status.CuringSpellsRange = {};
     D.Status.CuringSpellsPrio = {};
     D.Status.Blacklisted_Array = {};
     D.Status.UnitNum = 0;
@@ -1051,6 +1054,7 @@ function D:Configure() --{{{
 
 
     local CuringSpells = self.Status.CuringSpells;
+    local CuringSpellsRange = self.Status.CuringSpellsRange;
 
     CuringSpells[DC.MAGIC]      = false;
     CuringSpells[DC.ENEMYMAGIC] = false;
@@ -1058,6 +1062,12 @@ function D:Configure() --{{{
     CuringSpells[DC.POISON]     = false;
     CuringSpells[DC.DISEASE]    = false;
     CuringSpells[DC.CHARMED]    = false;
+    CuringSpellsRange[DC.MAGIC]      = false;
+    CuringSpellsRange[DC.ENEMYMAGIC] = false;
+    CuringSpellsRange[DC.CURSE]      = false;
+    CuringSpellsRange[DC.POISON]     = false;
+    CuringSpellsRange[DC.DISEASE]    = false;
+    CuringSpellsRange[DC.CHARMED]    = false;
 
     local Spell, spellName, Type, _;
     local GetSpellInfo = _G.GetSpellInfo;
@@ -1102,6 +1112,7 @@ function D:Configure() --{{{
 
                     self.Status.FoundSpells[spellName] = {DC.SpellsToUse[spellName].Pet, (select(2, GetSpellInfo(spellName))), IsEnhanced};
                     CuringSpells[Type] = spellName;
+                    CuringSpellsRange[Type] = DC.SpellsToUse[spellName].RangeSpell or spellName;
 
                     if OnPlayerOnly and OnPlayerOnly[Type] then
                         --@alpha@
