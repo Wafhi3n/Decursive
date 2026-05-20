@@ -810,6 +810,25 @@ function D:SetConfiguration()
         end
     end
 
+    -- Apply CoA per-spell disabled overrides saved in the profile
+    if C_Player and C_Player:IsCustomClass() and D.profile.CoASpellDisabled then
+        local _, classToken = UnitClass("player");
+        local disabled = D.profile.CoASpellDisabled[classToken];
+        if disabled and DC.CoAClassDB and DC.CoAClassDB[classToken] then
+            for key, isDisabled in pairs(disabled) do
+                if isDisabled then
+                    local spellName = DS[key];
+                    if spellName and spellName ~= "_LOST SPELL_" then
+                        DC.SpellsToUse[spellName] = nil;
+                    end
+                end
+            end
+        end
+    end
+
+    -- Populate the "Active Dispel Spells" toggle list in the options panel
+    if D.CoASetupRebuildDBOptions then D:CoASetupRebuildDBOptions(); end
+
     D:Init(); -- initialize Dcr core (set frames display, scans available cleansing spells)
 
 

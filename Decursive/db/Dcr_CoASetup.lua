@@ -164,6 +164,78 @@ function D:CoASetupRebuildOptions()
         };
     end
 
+    D:CoASetupRebuildDBOptions();
+    LibStub("AceConfigRegistry-3.0"):NotifyChange("Decursive");
+end
+
+-- ============================================================
+-- Apply or restore a single CoA spell in DC.SpellsToUse
+-- ============================================================
+local function ApplySpellToggle(classToken, key, disabled)
+    if not DC.CoAClassDB or not DC.CoAClassDB[classToken] then return; end
+    local data = DC.CoAClassDB[classToken][key];
+    if not data then return; end
+    local spellName = DC.DS and DC.DS[key];
+    if not spellName or spellName == "_LOST SPELL_" then return; end
+    if disabled then
+        DC.SpellsToUse[spellName] = nil;
+    else
+        DC.SpellsToUse[spellName] = {
+            Types  = data.Types,
+            IsBest = data.IsBest,
+            Pet    = data.Pet,
+        };
+    end
+end
+
+-- ============================================================
+-- Rebuild the "Active Dispel Spells" AceConfig toggles
+-- Called at login and after scan to reflect DC.CoAClassDB state
+-- ============================================================
+function D:CoASetupRebuildDBOptions()
+    if not D.options or not D.profile then return; end
+    local coaArgs = D.options.args.CoAClasses.args;
+    -- Remove previous dbspell entries
+    for k in pairs(coaArgs) do
+        if k:sub(1, 8) == "dbspell_" then coaArgs[k] = nil; end
+    end
+    if not C_Player or not C_Player:IsCustomClass() then return; end
+    local _, classToken = UnitClass("player");
+    local classSpells = DC.CoAClassDB and DC.CoAClassDB[classToken];
+    if not classSpells or next(classSpells) == nil then return; end
+    if not D.profile.CoASpellDisabled then D.profile.CoASpellDisabled = {}; end
+    if not D.profile.CoASpellDisabled[classToken] then
+        D.profile.CoASpellDisabled[classToken] = {};
+    end
+    local disabledMap = D.profile.CoASpellDisabled[classToken];
+    local TYPE_MAP = {
+        [DC.MAGIC]="Magic", [DC.ENEMYMAGIC]="EnemyMagic", [DC.CURSE]="Curse",
+        [DC.POISON]="Poison", [DC.DISEASE]="Disease", [DC.CHARMED]="Charm",
+    };
+    local idx = 0;
+    for key, data in pairs(classSpells) do
+        idx = idx + 1;
+        local k = key;
+        local typeNames = {};
+        for _, t in ipairs(data.Types or {}) do
+            table.insert(typeNames, TYPE_MAP[t] or tostring(t));
+        end
+        local typeStr = #typeNames > 0 and table.concat(typeNames, ", ") or "?";
+        local displayName = (DC.DS and DC.DS[k] and DC.DS[k] ~= "_LOST SPELL_" and DC.DS[k]) or k;
+        coaArgs["dbspell_" .. k] = {
+            type  = "toggle",
+            name  = displayName .. "  |cff888888[" .. typeStr .. "]|r",
+            desc  = "Enable or disable Decursive dispelling this spell.",
+            order = 52 + idx,
+            get   = function()
+                return not (disabledMap[k]);
+            end,
+            set   = function(_, v)
+                disabledMap[k] = not v;
+                ApplySpellToggle(classToken, k, not v);
+            end,
+        };
+    end
     LibStub("AceConfigRegistry-3.0"):NotifyChange("Decursive");
 end
 

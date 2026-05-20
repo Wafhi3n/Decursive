@@ -418,8 +418,12 @@ function D:GetDefaultsSettings()
                 ["STARCALLER"] = {},
                 ["SPIRITMAGE"] = {},
                 ["CHRONOMANCER"] = {},
-            }
+            },
             -- }}}
+
+            -- CoA per-spell enable/disable overrides saved by player.
+            -- { [classToken] = { [spellKey] = true } }  (true = disabled)
+            CoASpellDisabled = {},
         }
     } -- }}}
 end
@@ -1782,6 +1786,27 @@ local function GetOptions()
                         end,
                     },
                     -- spell_N entries added dynamically by D:CoASetupRebuildOptions()
+                    dbSpellsHeader = {
+                        type  = "header",
+                        name  = "Active Dispel Spells",
+                        order = 50,
+                        hidden = function()
+                            if not C_Player or not C_Player:IsCustomClass() then return true; end
+                            local _, ct = UnitClass("player");
+                            return not DC.CoAClassDB or not DC.CoAClassDB[ct] or next(DC.CoAClassDB[ct]) == nil;
+                        end,
+                    },
+                    dbSpellsInfo = {
+                        type  = "description",
+                        name  = "Toggle which spells Decursive should attempt to dispel.",
+                        order = 51,
+                        hidden = function()
+                            if not C_Player or not C_Player:IsCustomClass() then return true; end
+                            local _, ct = UnitClass("player");
+                            return not DC.CoAClassDB or not DC.CoAClassDB[ct] or next(DC.CoAClassDB[ct]) == nil;
+                        end,
+                    },
+                    -- dbspell_KEY entries added dynamically by D:CoASetupRebuildDBOptions()
                 },
             }, -- }}}
 
