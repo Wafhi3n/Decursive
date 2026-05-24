@@ -492,7 +492,8 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
     if C_Player and C_Player:IsCustomClass() then
         local _, classToken = UnitClass("player");
         local classSpells = DC.CoAClassDB and DC.CoAClassDB[classToken];
-        if classSpells then
+        if classSpells and next(classSpells) ~= nil then
+            -- Known PTR class: inject class-specific spells from DB
             for key, data in pairs(classSpells) do
                 local spellName = DS[key];
                 if spellName and spellName ~= "_LOST SPELL_" then
@@ -502,6 +503,34 @@ function D:OnInitialize() -- Called on ADDON_LOADED -- {{{
                         Pet        = data.Pet,
                         RangeSpell = data.RangeSpell,
                     };
+                end
+            end
+        else
+            -- Unknown/empty class (classless): inject all CoA custom dispel spells
+            local coaUse = {
+                ["SPELL_SANCTIFY"]            = { Types={DC.MAGIC,DC.POISON,DC.DISEASE}, IsBest=2, Pet=false },
+                ["SPELL_PRAYER_OF_ELUNE"]     = { Types={DC.MAGIC}, IsBest=2, Pet=false, RangeSpell="Moonwell Splash" },
+                ["SPELL_ELUNES_PURIFICATION"] = { Types={DC.POISON,DC.DISEASE}, IsBest=2, Pet=false },
+                ["SPELL_REBUKE"]              = { Types={DC.MAGIC,DC.POISON,DC.DISEASE}, IsBest=2, Pet=false },
+                ["SPELL_DEVOUR_MAGIC"]        = { Types={DC.MAGIC}, IsBest=2, Pet=false },
+                ["SPELL_RESONANCE_RUNE"]      = { Types={DC.MAGIC,DC.ENEMYMAGIC}, IsBest=2, Pet=false },
+                ["SPELL_ROLL_BACK"]           = { Types={DC.MAGIC}, IsBest=2, Pet=false },
+                ["SPELL_BABIFY"]              = { Types={DC.CHARMED}, IsBest=2, Pet=false },
+                ["SPELL_ALLCURE_ELIXIR"]      = { Types={DC.POISON,DC.DISEASE,DC.CURSE}, IsBest=2, Pet=false },
+                ["SPELL_HEXBREAK"]            = { Types={DC.CURSE}, IsBest=0, Pet=false },
+                ["SPELL_MED_PACK"]            = { Types={DC.POISON,DC.DISEASE}, IsBest=2, Pet=false },
+                ["SPELL_BOON_OF_THE_LION"]    = { Types={DC.CHARMED}, IsBest=2, Pet=false },
+                ["SPELL_ANTIVENOM"]           = { Types={DC.POISON}, IsBest=2, Pet=false },
+                ["SPELL_SOUL_SHEAR"]          = { Types={DC.ENEMYMAGIC}, IsBest=2, Pet=false },
+                ["SPELL_PURGE_EVIL"]          = { Types={DC.ENEMYMAGIC}, IsBest=2, Pet=false },
+                ["SPELL_STORMBREAKER"]        = { Types={DC.ENEMYMAGIC}, IsBest=2, Pet=false },
+                ["SPELL_CALM_THE_STORM"]      = { Types={DC.ENEMYMAGIC}, IsBest=1, Pet=false },
+                ["SPELL_HYPOVOLEMIC_SHOCK"]   = { Types={DC.ENEMYMAGIC}, IsBest=2, Pet=false },
+            }
+            for key, data in pairs(coaUse) do
+                local name = DS[key]
+                if name and name ~= "_LOST SPELL_" then
+                    DC.SpellsToUse[name] = data
                 end
             end
         end
@@ -1207,14 +1236,8 @@ function D:GetSpellsTranslations(FromDIAG)
         ['Amplify Magic'] = { 1008, },
         ['TALENT_BODY_AND_SOUL'] = { 64129, 65081, },
     }
-    if not C_Player then
-        self:Debug("C_Player API not available, using hero spell table by default.")
-        for k,v in pairs(heroSpells) do Spells[k] = v end
-    elseif C_Player:IsHero() then
-        for k,v in pairs(heroSpells) do Spells[k] = v end
-    elseif C_Player:IsDefaultClass() then
-        local defaultSpells = {
-            ["SPELL_POLYMORPH"] = { 1100118, }, -- mage
+    local defaultSpells = {
+        ["SPELL_POLYMORPH"] = { 1100118, }, -- mage
             ["SPELL_CYCLONE"] = { 1133786, }, -- druid
             ["SPELL_CURE_DISEASE"] = { 1100528, }, -- priest
             ["SPELL_ABOLISH_DISEASE"] = { 1100552, }, -- priest
@@ -1248,10 +1271,15 @@ function D:GetSpellsTranslations(FromDIAG)
             ['Unstable Affliction'] = { 1130108, 1130404, 1130405, },
             ['Dampen Magic'] = { 1100604, },
             ['Amplify Magic'] = { 1101008, },
-            ['TALENT_BODY_AND_SOUL'] = { 1164127, 1164129, },
-        }
+        ['TALENT_BODY_AND_SOUL'] = { 1164127, 1164129, },
+    }
+    if not C_Player then
+        self:Debug("C_Player API not available, using hero spell table by default.")
+        for k,v in pairs(heroSpells) do Spells[k] = v end
+    elseif C_Player:IsHero() then
+        for k,v in pairs(heroSpells) do Spells[k] = v end
+    elseif C_Player:IsDefaultClass() then
         for k,v in pairs(defaultSpells) do Spells[k] = v end
-
     elseif C_Player:IsCustomClass() then -- CoA classless
         local _, classToken = UnitClass("player");
         local classSpells = DC.CoAClassDB and DC.CoAClassDB[classToken];
@@ -1259,17 +1287,39 @@ function D:GetSpellsTranslations(FromDIAG)
             for key, data in pairs(classSpells) do
                 Spells[key] = data.ids;
             end
-            -- Fill in heroSpells entries not already covered by the DB
-            for k, v in pairs(heroSpells) do
+            -- Fill in defaultSpells entries not already covered by the DB
+            for k, v in pairs(defaultSpells) do
                 if not Spells[k] then Spells[k] = v; end
             end
         else
             if classSpells then
-                self:Debug("CoA class " .. tostring(classToken) .. " has no DB entries, using heroSpells");
+                self:Debug("CoA class " .. tostring(classToken) .. " has no DB entries, using defaultSpells");
             else
-                self:Debug("Unknown CoA class: " .. tostring(classToken) .. " — add to db/Dcr_CoAClassDB.lua");
+                self:Debug("Unknown class: " .. tostring(classToken) .. " — using defaultSpells fallback");
             end
-            for k, v in pairs(heroSpells) do Spells[k] = v; end
+            for k, v in pairs(defaultSpells) do Spells[k] = v; end
+            -- CoA custom dispel spells (for classless players who may have them)
+            local coaSpells = {
+                ["SPELL_SANCTIFY"]            = { 524968, },
+                ["SPELL_PRAYER_OF_ELUNE"]     = { 801987, 502348, 502349, 502350, 502351, 575334, },
+                ["SPELL_ELUNES_PURIFICATION"] = { 520869, },
+                ["SPELL_REBUKE"]              = { 525051, },
+                ["SPELL_DEVOUR_MAGIC"]        = { 520151, },
+                ["SPELL_RESONANCE_RUNE"]      = { 803679, },
+                ["SPELL_ROLL_BACK"]           = { 804490, },
+                ["SPELL_BABIFY"]              = { 804461, },
+                ["SPELL_ALLCURE_ELIXIR"]      = { 804049, },
+                ["SPELL_HEXBREAK"]            = { 806240, },
+                ["SPELL_MED_PACK"]            = { 502533, 502534, 502535, 502536, },
+                ["SPELL_BOON_OF_THE_LION"]    = { 504856, },
+                ["SPELL_ANTIVENOM"]           = { 800905, },
+                ["SPELL_SOUL_SHEAR"]          = { 520862, },
+                ["SPELL_PURGE_EVIL"]          = { 572306, },
+                ["SPELL_STORMBREAKER"]        = { 705669, },
+                ["SPELL_CALM_THE_STORM"]      = { 572303, },
+                ["SPELL_HYPOVOLEMIC_SHOCK"]   = { 572305, 572409, 572410, 572411, 572412, },
+            }
+            for k, v in pairs(coaSpells) do Spells[k] = v; end
         end
     else
         self:Debug("Player class type cannot be determined or is not set up.  Aborting Spell Table setup")
