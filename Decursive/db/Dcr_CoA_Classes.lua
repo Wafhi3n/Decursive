@@ -27,6 +27,12 @@ DC.CoAClassDB = {
             IsBest = 2,
             Pet    = false,
         },
+        ["SPELL_MERCY"] = {              -- 12s buff: removes all diseases
+            ids    = { 504848 },
+            Types  = { DC.DISEASE },
+            IsBest = 1,
+            Pet    = false,
+        },
     },
     -- ── STARCALLER ─────────────────────────────────────────────────────────
     STARCALLER = {
