@@ -1,23 +1,22 @@
-local addonName, T = ...;
-local DC = _G.DcrC;
-
--- Per CoA custom class dispell spell definitions
--- Format: [CLASS_TOKEN] = { [SPELL_KEY] = { ids={spellID,...}, Types={DC.TYPE,...}, IsBest=N, Pet=bool } }
+-- Dcr_CoA_Classes.lua
+-- CoA / Ascension custom class dispel spell database.
+-- Only active when GetRealmName() contains "CoA" or "Ascension".
+-- Edit this file to add or update class dispel spells.
 -- Use /dcrcoasetup in-game to scan your spellbook and generate entries to paste here.
 --
 -- Types values: DC.MAGIC=1, DC.ENEMYMAGIC=2, DC.CURSE=4, DC.POISON=8, DC.DISEASE=16, DC.CHARMED=32
 -- IsBest: 0=not best, 1=best, 2=only remove spell for that type
 -- Pet: true if the spell also works on pets
---
--- Example entry (uncomment and fill with IDs from /dcrcoasetup scan):
--- SUNCLERIC = {
---     ["SPELL_SANCTIFY"] = {
---         ids    = { 524968 },
---         Types  = { DC.MAGIC, DC.DISEASE, DC.POISON, DC.CURSE },
---         IsBest = 2,
---         Pet    = false,
---     },
--- },
+
+local addonName, T = ...;
+
+if not T.IsCoAServer() then return; end
+
+local DC = _G.DcrC;
+if not DC then
+    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[Decursive] Dcr_CoA_Classes.lua: DcrC is nil, skipping|r");
+    return;
+end
 
 DC.CoAClassDB = {
     -- ── SUNCLERIC ──────────────────────────────────────────────────────────

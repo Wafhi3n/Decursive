@@ -48,6 +48,12 @@ Dcr = T.Dcr; -- needed until we get rid of the xml based UI.
 
 local D = T.Dcr;
 
+-- Server detection helper — available to all files loaded after this one via T.IsCoAServer()
+T.IsCoAServer = function()
+    local r = GetRealmName() or "";
+    return r:find("CoA") ~= nil or r:find("Ascension") ~= nil;
+end;
+
 D.name = "Decursive";
 D.version = "2.5.1-6-gd3885c5";
 D.author = "Archarodim";
@@ -59,36 +65,6 @@ D.LC        = _G.LOCALIZED_CLASS_NAMES_MALE;
 if not D.LC then
     T._AddDebugText("DCR_init.lua: Couldn't get LOCALIZED_CLASS_NAMES_MALE!");
     D.LC = {};
-end
-
--- Inject CoA custom class display names (not in LOCALIZED_CLASS_NAMES_MALE)
-local CoAClassDisplayNames = {
-    ["SUNCLERIC"]    = "Suncleric",
-    ["BARBARIAN"]    = "Barbarian",
-    ["WITCHDOCTOR"]  = "Witch Doctor",
-    ["DEMONHUNTER"]  = "Demon Hunter",
-    ["WITCHHUNTER"]  = "Witch Hunter",
-    ["STORMBRINGER"] = "Stormbringer",
-    ["FLESHWARDEN"]  = "Fleshwarden",
-    ["GUARDIAN"]     = "Guardian",
-    ["MONK"]         = "Monk",
-    ["SONOFARUGAL"]  = "Son of a Rugal",
-    ["RANGER"]       = "Ranger",
-    ["PROPHET"]      = "Prophet",
-    ["PYROMANCER"]   = "Pyromancer",
-    ["CULTIST"]      = "Cultist",
-    ["NECROMANCER"]  = "Necromancer",
-    ["TINKER"]       = "Tinker",
-    ["REAPER"]       = "Reaper",
-    ["WILDWALKER"]   = "Wildwalker",
-    ["STARCALLER"]   = "Starcaller",
-    ["SPIRITMAGE"]   = "Spirit Mage",
-    ["CHRONOMANCER"] = "Chronomancer",
-};
-for token, name in pairs(CoAClassDisplayNames) do
-    if not D.LC[token] then
-        D.LC[token] = name;
-    end
 end
 
 D.DcrFullyInitialized = false;

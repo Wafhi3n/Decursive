@@ -1,17 +1,60 @@
-﻿local addonName, T = ...;
-local D  = T and T.Dcr;
+-- Dcr_CoA_Base.lua
+-- CoA / Ascension server module: custom class display names, setup tool, debug commands.
+-- Only active when GetRealmName() contains "CoA" or "Ascension".
+-- Merged from: Dcr_CoAClassDB.lua (display names), Dcr_CoASetup.lua, Dcr_CoADebug.lua
+
+local addonName, T = ...;
+
+if not T.IsCoAServer() then return; end
+
+local D  = T.Dcr;
 local DC = _G.DcrC;
 
 if not D then
-    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[Decursive] Dcr_CoASetup.lua: T.Dcr is nil, skipping|r");
+    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[Decursive] Dcr_CoA_Base.lua: T.Dcr is nil, skipping|r");
     return;
 end
 if not DC then
-    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[Decursive] Dcr_CoASetup.lua: DcrC is nil, skipping|r");
+    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[Decursive] Dcr_CoA_Base.lua: DcrC is nil, skipping|r");
     return;
 end
 
+-- ============================================================
+-- Inject CoA custom class display names into D.LC
+-- (LOCALIZED_CLASS_NAMES_MALE does not include Ascension custom classes)
+-- ============================================================
+local CoAClassDisplayNames = {
+    ["SUNCLERIC"]    = "Suncleric",
+    ["BARBARIAN"]    = "Barbarian",
+    ["WITCHDOCTOR"]  = "Witch Doctor",
+    ["DEMONHUNTER"]  = "Demon Hunter",
+    ["WITCHHUNTER"]  = "Witch Hunter",
+    ["STORMBRINGER"] = "Stormbringer",
+    ["FLESHWARDEN"]  = "Fleshwarden",
+    ["GUARDIAN"]     = "Guardian",
+    ["MONK"]         = "Monk",
+    ["SONOFARUGAL"]  = "Son of a Rugal",
+    ["RANGER"]       = "Ranger",
+    ["PROPHET"]      = "Prophet",
+    ["PYROMANCER"]   = "Pyromancer",
+    ["CULTIST"]      = "Cultist",
+    ["NECROMANCER"]  = "Necromancer",
+    ["TINKER"]       = "Tinker",
+    ["REAPER"]       = "Reaper",
+    ["WILDWALKER"]   = "Wildwalker",
+    ["STARCALLER"]   = "Starcaller",
+    ["SPIRITMAGE"]   = "Spirit Mage",
+    ["CHRONOMANCER"] = "Chronomancer",
+};
+for token, name in pairs(CoAClassDisplayNames) do
+    if not D.LC[token] then
+        D.LC[token] = name;
+    end
+end
+
+-- ============================================================
 -- CoA Setup state
+-- ============================================================
 local CoASetup = {
     spells = {},   -- { name, id, magic, disease, poison, curse, charmed, enemymagic, isBest, pet }
     output = "",   -- last generated Lua string
@@ -31,7 +74,7 @@ local TYPE_DEFS = {
 };
 
 -- ============================================================
--- Scan spellbook â†’ CoASetup.spells
+-- Scan spellbook → CoASetup.spells
 -- ============================================================
 function D:CoASetupScan()
     CoASetup.spells = {};
@@ -62,12 +105,12 @@ function D:CoASetupScan()
 end
 
 -- ============================================================
--- Generate Lua output â†’ CoASetup.output
+-- Generate Lua output → CoASetup.output
 -- ============================================================
 function D:CoASetupGenerate()
     local _, classToken = UnitClass("player");
     local lines = {
-        "-- Paste into DC.CoAClassDB[\"" .. tostring(classToken) .. "\"] in db/Dcr_CoAClassDB.lua",
+        "-- Paste into DC.CoAClassDB[\"" .. tostring(classToken) .. "\"] in db/Dcr_CoA_Classes.lua",
         "[\"" .. tostring(classToken) .. "\"] = {",
     };
     for _, spell in ipairs(CoASetup.spells) do
@@ -184,7 +227,7 @@ local function ApplySpellToggle(classToken, key, disabled)
             Types      = data.Types,
             IsBest     = data.IsBest,
             Pet        = data.Pet,
-            RangeSpell = data.RangeSpell,  -- optional: targeted spell used for range check
+            RangeSpell = data.RangeSpell,
         };
     end
 end
@@ -246,4 +289,67 @@ end
 function D:CoASetupOpen()
     D:CoASetupScan();
     LibStub("AceConfigDialog-3.0"):Open("Decursive");
+end
+
+-- ============================================================
+-- /dcrcoainfo — print CoA class info and known DB entries
+-- ============================================================
+function D:CoAPrintClassInfo()
+    local name, token = UnitClass("player");
+    D:Print("|cff00ffffCoA Class Info:|r");
+    D:Print("  UnitClass: token=|cffffd700" .. tostring(token) .. "|r  name=" .. tostring(name));
+    if C_Player then
+        D:Print("  C_Player.IsHero()=" .. tostring(C_Player:IsHero()));
+        D:Print("  C_Player.IsDefaultClass()=" .. tostring(C_Player:IsDefaultClass()));
+        D:Print("  C_Player.IsCustomClass()=" .. tostring(C_Player:IsCustomClass()));
+    else
+        D:Print("  |cffff0000C_Player API not available|r");
+    end
+    local classSpells = DC.CoAClassDB and DC.CoAClassDB[token];
+    if classSpells then
+        local count = 0;
+        for _ in pairs(classSpells) do count = count + 1; end
+        if count > 0 then
+            D:Print("  DB entry: |cff00ff00found (" .. count .. " spells)|r");
+            for key, data in pairs(classSpells) do
+                local id = data.ids and data.ids[1];
+                local spellName = id and GetSpellInfo(id);
+                D:Print("    - " .. key .. " -> ID:" .. tostring(id) .. " -> " .. tostring(spellName));
+            end
+        else
+            D:Print("  DB entry: |cffffff00empty (use /dcrcoasetup to populate)|r");
+        end
+    else
+        D:Print("  DB entry: |cffff0000NOT FOUND for class " .. tostring(token) .. "|r");
+    end
+    -- Show DC.SpellsToUse count
+    local suCount = 0;
+    if DC.SpellsToUse then
+        for _ in pairs(DC.SpellsToUse) do suCount = suCount + 1; end
+    end
+    D:Print("  DC.SpellsToUse entries: " .. suCount);
+end
+
+-- ============================================================
+-- /dcrcoainfo scan — print all spellbook entries with IDs
+-- ============================================================
+function D:CoAScanSpellBook()
+    D:Print("|cff00ffffCoA Spellbook Scan:|r");
+    local found = 0;
+    for tabIndex = 1, GetNumSpellTabs() do
+        local tabName, _, offset, numSpells = GetSpellTabInfo(tabIndex);
+        D:Print("  |cffffff00Tab " .. tabIndex .. ": " .. tostring(tabName) .. "|r");
+        for i = offset + 1, offset + numSpells do
+            local skillType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
+            if skillType ~= "FUTURESPELL" then
+                local spellName = GetSpellBookItemName(i, BOOKTYPE_SPELL);
+                if spellName then
+                    D:Print("    [" .. i .. "] " .. spellName .. " (ID: " .. tostring(spellID or "?") .. ")");
+                    found = found + 1;
+                end
+            end
+        end
+    end
+    if found == 0 then D:Print("  No spells found."); end
+    D:Print("  Total: " .. found .. " spells. Use /dcrcoasetup for interactive setup.");
 end

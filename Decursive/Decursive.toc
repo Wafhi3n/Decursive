@@ -54,9 +54,8 @@ DCR_init.lua
 Dcr_LDB.lua
 Dcr_utils.lua
 
-db\Dcr_CoAClassDB.lua
-db\Dcr_CoADebug.lua
-db\Dcr_CoASetup.lua
+db\Dcr_CoA_Base.lua
+db\Dcr_CoA_Classes.lua
 
 Dcr_opt.lua
 Dcr_Events.lua
